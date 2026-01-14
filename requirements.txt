@@ -1,0 +1,12 @@
+langchain
+langchain-openai
+langchain-community
+langgraph
+gradio
+python-pptx
+python-docx
+Pillow
+python-dotenv
+openai
+dashscope
+requests
