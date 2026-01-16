@@ -106,15 +106,32 @@ def resume_to_render(thread_id, slides_json):
         
         # 3. 获取结果
         state = app.get_state(config).values
+        outline = state.get("outline")
         slides = state.get("slides", [])
         file_path = state.get("generated_file")
-        
+
+        logger.info(f"UI: Final state - outline: {outline.title if outline else 'None'}, slides: {len(slides)}, file: {file_path}")
+
         slides_md = ""
-        for i, slide in enumerate(slides, 1):
-            slides_md += f"### Slide {i}: {slide.title}\n"
+        slide_number = 1
+
+        # 添加标题页预览
+        if outline and outline.title:
+            slides_md += f"### Slide {slide_number}: {outline.title} (标题页)\n"
+            slides_md += f"**演示文稿标题页**\n\n"
+            slides_md += f"**章节大纲:**\n"
+            for chapter in outline.chapters:
+                slides_md += f"- {chapter}\n"
+            slides_md += f"\n---\n\n"
+            slide_number += 1
+
+        # 添加内容页预览
+        for slide in slides:
+            slides_md += f"### Slide {slide_number}: {slide.title}\n"
             for point in slide.bullet_points: slides_md += f"- {point}\n"
             if slide.image_path: slides_md += f"\n![Image]({slide.image_path})\n"
             slides_md += f"\n**视觉建议:** `{slide.image_query}` | **版式:** `{slide.layout_type}`\n\n---\n\n"
+            slide_number += 1
             
         return slides_md, file_path
     except Exception as e:
@@ -122,7 +139,7 @@ def resume_to_render(thread_id, slides_json):
         return f"渲染异常: {str(e)}", None
 
 def create_ui():
-    with gr.Blocks(title="ChatPPT - AI Agent (HITL & Persistence)", theme=gr.themes.Soft()) as demo:
+    with gr.Blocks(title="ChatPPT - AI Agent (HITL & Persistence)") as demo:
         gr.Markdown("# 🚀 ChatPPT: 极致持久化工作流")
         
         # 隐藏的 State 用于保存 thread_id
@@ -171,6 +188,27 @@ def create_ui():
         
     return demo
 
-if __name__ == "__main__":
+def launch_ui():
+    """启动 UI（用于 main.py 调用）"""
+    import os
+    # 禁用代理对 localhost 的影响
+    os.environ['no_proxy'] = '127.0.0.1,localhost'
+
     demo = create_ui()
-    demo.launch()
+    demo.launch(
+        theme=gr.themes.Soft(),
+        server_name="0.0.0.0",  # 绑定到所有接口
+        server_port=7861,  # 换个端口
+        show_error=True,
+        share=False,
+        enable_monitoring=False,
+        app_kwargs={
+            "timeout": 120,
+            "proxy_headers": False
+        }
+    )
+
+if __name__ == "__main__":
+    # 如果直接运行此文件，则启动 UI
+    import gradio as gr
+    launch_ui()

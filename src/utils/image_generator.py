@@ -1,5 +1,5 @@
 import os
-import dashscope
+import requests
 from src.utils.logger import logger
 
 class WanxGenerator:

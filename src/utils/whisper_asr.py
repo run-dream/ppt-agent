@@ -1,5 +1,5 @@
 import os
-from openai import OpenAI
+from langchain_openai import OpenAI
 from src.utils.logger import logger
 
 class WhisperASR:
@@ -12,12 +12,10 @@ class WhisperASR:
         """
         将音频文件转录为文本
         """
-        api_key = os.getenv("LLM_API_KEY")
-        api_base = os.getenv("LLM_API_BASE")
-        # 如果是阿里云，通常有专门的 ASR 接口，但如果走兼容模式：
-        # dashscope 的兼容模式目前主要针对 Chat，Audio 可能需要单独处理。
-        # 这里先提供一个基于标准 OpenAI 协议的实现
-        
+        api_key = os.getenv("LLM_API_KEY") or os.getenv("DASHSCOPE_API_KEY")
+        api_base = os.getenv("LLM_API_BASE") or "https://dashscope.aliyuncs.com/compatible-mode/v1"
+        # 使用DashScope兼容模式，支持OpenAI协议的音频转录
+
         try:
             client = OpenAI(api_key=api_key, base_url=api_base)
             

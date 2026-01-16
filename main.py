@@ -16,6 +16,26 @@ src_path = os.path.join(project_root, 'src')
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
+# 初始化 LangSmith (如果配置了)
+from dotenv import load_dotenv
+load_dotenv()
+
+# 启用 LangSmith tracing（如果配置了相关环境变量）
+langsmith_api_key = os.getenv("LANGSMITH_API_KEY")
+langsmith_endpoint = os.getenv("LANGSMITH_ENDPOINT")
+langsmith_project = os.getenv("LANGSMITH_PROJECT")
+
+if langsmith_api_key and langsmith_project:
+    os.environ["LANGCHAIN_TRACING_V2"] = "true"
+    os.environ["LANGCHAIN_API_KEY"] = langsmith_api_key
+    if langsmith_endpoint:
+        os.environ["LANGCHAIN_ENDPOINT"] = langsmith_endpoint
+    os.environ["LANGCHAIN_PROJECT"] = langsmith_project
+
+    print(f"🔍 LangSmith tracing 已启用 (项目: {langsmith_project})")
+else:
+    print("🔍 LangSmith tracing 未启用 (未配置相关环境变量)")
+
 def main():
     if len(sys.argv) < 2:
         print("用法: python main.py [ui|test]")
@@ -32,11 +52,21 @@ def main():
 
         demo = create_ui()
         # 修复 Gradio 6.0 API 变更
+        # 禁用代理对 localhost 的影响
+        os.environ['no_proxy'] = '127.0.0.1,localhost'
+
         demo.launch(
             theme=gr.themes.Soft(),
-            server_name="127.0.0.1",
-            server_port=7860,
-            show_error=True
+            server_name="0.0.0.0",  # 绑定到所有接口
+            server_port=7861,  # 换个端口
+            show_error=True,
+            share=False,
+            enable_monitoring=False,
+            # 绕过代理设置
+            app_kwargs={
+                "timeout": 120,
+                "proxy_headers": False
+            }
         )
 
     elif command == "test":
@@ -48,8 +78,9 @@ def main():
         try:
             import gradio as gr
             print(f"✅ Gradio {gr.__version__} 已安装")
-        except ImportError:
-            print("❌ Gradio 未安装")
+        except ImportError as e:
+            print(f"❌ Gradio 未安装: {e}")
+            print("   💡 运行: pip install gradio")
 
         try:
             from dotenv import load_dotenv

@@ -33,6 +33,7 @@ ENV/
 data/outputs/
 data/temp/
 logs/
+test_*.py
 .DS_Store
 
 # IDEs

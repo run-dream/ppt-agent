@@ -19,22 +19,24 @@ class LayoutManager:
     
     # 映射表：抽象版式名称 -> pptx 索引
     LAYOUT_MAPPING = {
-        "title_slide": 0,
-        "title_content": 1,
-        "section_header": 2,
-        "two_column": 3,
-        "comparison": 4,
-        "title_only": 5,
-        "blank": 6,
-        "content_caption": 7,
-        "picture_caption": 8,
-        "default": 1
+        "title_slide": 0,      # Title - 只有标题
+        "title_content": 8,    # Picture with Caption - 有标题、内容和图片占位符
+        "section_header": 2,   # Section Header
+        "two_column": 3,       # Two Content
+        "comparison": 4,       # Comparison
+        "title_only": 5,       # Title Only
+        "blank": 6,            # Blank
+        "content_caption": 7,  # Content with Caption
+        "picture_caption": 8,  # Picture with Caption - 有图片占位符
+        "default": 8           # 默认使用有图片的布局
     }
 
     @staticmethod
     def get_layout_index(layout_name: str) -> int:
         """根据名称获取版式索引"""
-        return LayoutManager.LAYOUT_MAPPING.get(layout_name, 1)
+        layout_idx = LayoutManager.LAYOUT_MAPPING.get(layout_name, 8)  # 默认使用有图片的布局
+        # 确保索引在有效范围内 (0-8)
+        return max(0, min(layout_idx, 8))
 
     @staticmethod
     def get_placeholder(slide, placeholder_type):

@@ -20,6 +20,7 @@ def content_planner_node(state: PPTState) -> PPTState:
     
     # 从外部文件读取按照 RoleTaskFormat 编写的 Prompts
     system_prompt = read_prompt("planner")
+    title = "Content Planner"
     
     # 定义提示词
     prompt = ChatPromptTemplate.from_messages([
@@ -32,7 +33,7 @@ def content_planner_node(state: PPTState) -> PPTState:
     chain = prompt | structured_llm
     
     try:
-        outline = chain.invoke({"input": input_text})
+        outline = chain.invoke({"input": input_text, "title": title})
         logger.info(f"Content Planner: Successfully generated outline: {outline.title}")
         return {
             **state,

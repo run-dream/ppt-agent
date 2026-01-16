@@ -22,7 +22,7 @@ class LLMFactory:
         model_configs = {
             "planner": os.getenv("PLANNER_MODEL", "qwen-max"),
             "generator": os.getenv("GENERATOR_MODEL", "qwen-plus"),
-            "image_advisor": os.getenv("IMAGE_ADVISOR_MODEL", "qwen-turbo")
+            "image_advisor": os.getenv("IMAGE_ADVISOR_MODEL", "qwen-plus")
         }
         
         model_name = model_configs.get(node_name, "qwen-plus")

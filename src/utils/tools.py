@@ -1,4 +1,5 @@
 from langchain_core.tools import tool
+from src.utils.unsplash_searcher import UnsplashSearcher
 from src.utils.image_searcher import ImageSearcher
 from src.utils.image_generator import WanxGenerator
 from src.utils.logger import logger
@@ -6,11 +7,11 @@ from src.utils.logger import logger
 @tool
 def search_real_photo(query: str):
     """
-    当需要真实的、摄影类的、存在于现实世界中的事物图片时，调用此工具从 Bing 搜索引擎中搜索。
+    当需要真实的、摄影类的、存在于现实世界中的事物图片时，调用此工具从 Unsplash 中搜索高质量照片。
     参数 query: 英文搜索关键词。
     """
     logger.info(f"Tool Call: search_real_photo('{query}')")
-    urls = ImageSearcher.search_images(query)
+    urls = UnsplashSearcher.search_images(query)
     return urls[0] if urls else "未找到合适的真实照片"
 
 @tool
